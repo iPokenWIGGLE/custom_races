@@ -196,6 +196,10 @@ function StartRace()
 					SetPedConfigFlag(ped, 151, true)
 					SetPedCanBeKnockedOffVehicle(ped, 3)
 				end
+				if not transformIsParachute and not transformIsBeast then
+					local boostValue = currentRace.isLastPlace and 1.8 or 1.0
+					SetVehicleCheatPowerIncrease(vehicle, boostValue)
+				end
 				local model = GetEntityModel(vehicle)
 				local class = GetVehicleClassFromName(model)
 				if class == 8 or class == 13 then
@@ -740,6 +744,8 @@ function DrawBottomHUD()
 	-- Current ranking
 	local driversInfo = UpdateDriversInfo(currentRace.drivers)
 	local position = GetPlayerPosition(driversInfo, GetPlayerServerId(PlayerId()))
+	currentRace.myPosition = position
+	currentRace.isLastPlace = currentRace.playerCount > 1 and position == currentRace.playerCount
 	if not hudData.position or hudData.position ~= position or hudData.playerCount ~= currentRace.playerCount then
 		SendNUIMessage({
 			position = position .. "</span><span style='font-size: 4vh;margin-left: 9px;'>/ " .. currentRace.playerCount
