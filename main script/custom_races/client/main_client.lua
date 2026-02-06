@@ -768,7 +768,7 @@ end
 function UpdateSlipstreamAssist(position)
 	if not currentRace.slipstreamAssistEnabled or currentRace.playerCount <= 1 then
 		if currentRace.slipstreamActive ~= true then
-			SetPlayerCanUseSlipstream(PlayerId(), true)
+			SetEnableVehicleSlipstreaming(true)
 			currentRace.slipstreamActive = true
 		end
 		return
@@ -777,7 +777,7 @@ function UpdateSlipstreamAssist(position)
 	local startPosition = currentRace.playerCount - bottomCount + 1
 	local shouldEnable = position >= startPosition
 	if currentRace.slipstreamActive ~= shouldEnable then
-		SetPlayerCanUseSlipstream(PlayerId(), shouldEnable)
+		SetEnableVehicleSlipstreaming(shouldEnable)
 		currentRace.slipstreamActive = shouldEnable
 	end
 end
@@ -1902,7 +1902,7 @@ function ResetClient()
 			b = 255
 		}
 	}
-	SetPlayerCanUseSlipstream(PlayerId(), true)
+	SetEnableVehicleSlipstreaming(true)
 	ResetAndHideRespawnUI()
 	FreezeEntityPosition(ped, true)
 	SetRunSprintMultiplierForPlayer(PlayerId(), 1.0)
