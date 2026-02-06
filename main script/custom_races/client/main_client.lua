@@ -199,7 +199,7 @@ function StartRace()
 					SetPedCanBeKnockedOffVehicle(ped, 3)
 				end
 				if not transformIsParachute and not transformIsBeast then
-					local boostValue = currentRace.isLastPlace and 1.8 or 1.0
+					local boostValue = currentRace.lastPlaceBoostActive and 1.8 or 1.0
 					SetVehicleCheatPowerIncrease(vehicle, boostValue)
 				end
 				local model = GetEntityModel(vehicle)
@@ -735,6 +735,53 @@ function GetPlayerPosition(_driversInfo, playerId)
 	return currentRace.playerCount
 end
 
+function UpdateLastPlaceBoost(driversInfo, position)
+	if not currentRace.lastPlaceBoostEnabled or currentRace.playerCount <= 1 then
+		currentRace.lastPlaceBoostActive = false
+		currentRace.lastPlaceBoostStartTime = nil
+		return
+	end
+	if position ~= currentRace.playerCount then
+		currentRace.lastPlaceBoostActive = false
+		currentRace.lastPlaceBoostStartTime = nil
+		return
+	end
+	local lastDriver = driversInfo[#driversInfo]
+	local penultimateDriver = driversInfo[#driversInfo - 1]
+	if not lastDriver or not penultimateDriver or lastDriver.hasFinished or lastDriver.dnf then
+		currentRace.lastPlaceBoostActive = false
+		currentRace.lastPlaceBoostStartTime = nil
+		return
+	end
+	local checkpointGap = (penultimateDriver.totalCheckpointsTouched or 0) - (lastDriver.totalCheckpointsTouched or 0)
+	if checkpointGap >= 2 then
+		if not currentRace.lastPlaceBoostStartTime then
+			currentRace.lastPlaceBoostStartTime = GetGameTimer()
+		end
+		currentRace.lastPlaceBoostActive = (GetGameTimer() - currentRace.lastPlaceBoostStartTime) >= 10000
+	else
+		currentRace.lastPlaceBoostActive = false
+		currentRace.lastPlaceBoostStartTime = nil
+	end
+end
+
+function UpdateSlipstreamAssist(position)
+	if not currentRace.slipstreamAssistEnabled or currentRace.playerCount <= 1 then
+		if currentRace.slipstreamActive ~= true then
+			SetEnableVehicleSlipstreaming(true)
+			currentRace.slipstreamActive = true
+		end
+		return
+	end
+	local bottomCount = math.ceil(currentRace.playerCount / 2)
+	local startPosition = currentRace.playerCount - bottomCount + 1
+	local shouldEnable = position >= startPosition
+	if currentRace.slipstreamActive ~= shouldEnable then
+		SetEnableVehicleSlipstreaming(shouldEnable)
+		currentRace.slipstreamActive = shouldEnable
+	end
+end
+
 function DrawBottomHUD()
 	-- Current lap number
 	if not hudData.actualLap or hudData.actualLap ~= actualLap then
@@ -748,6 +795,8 @@ function DrawBottomHUD()
 	local position = GetPlayerPosition(driversInfo, GetPlayerServerId(PlayerId()))
 	currentRace.myPosition = position
 	currentRace.isLastPlace = currentRace.playerCount > 1 and position == currentRace.playerCount
+	UpdateLastPlaceBoost(driversInfo, position)
+	UpdateSlipstreamAssist(position)
 	if not hudData.position or hudData.position ~= position or hudData.playerCount ~= currentRace.playerCount then
 		SendNUIMessage({
 			position = position .. "</span><span style='font-size: 4vh;margin-left: 9px;'>/ " .. currentRace.playerCount
@@ -1823,6 +1872,11 @@ function ResetClient()
 		mode = "",
 		roomData = nil,
 		playerCount = 1,
+		lastPlaceBoostEnabled = false,
+		lastPlaceBoostActive = false,
+		lastPlaceBoostStartTime = nil,
+		slipstreamAssistEnabled = false,
+		slipstreamActive = nil,
 		drivers = {},
 		lastVehicle = nil,
 		default_vehicle = nil,
@@ -1848,6 +1902,7 @@ function ResetClient()
 			b = 255
 		}
 	}
+	SetEnableVehicleSlipstreaming(true)
 	ResetAndHideRespawnUI()
 	FreezeEntityPosition(ped, true)
 	SetRunSprintMultiplierForPlayer(PlayerId(), 1.0)
@@ -2424,6 +2479,11 @@ RegisterNetEvent("custom_races:client:loadTrack", function(roomData, data, roomI
 	currentRace.traffic = roomData.traffic ~= "off" and true or false
 	currentRace.mode = roomData.mode
 	currentRace.roomData = roomData
+	currentRace.lastPlaceBoostEnabled = roomData.lastPlaceBoost == "on"
+	currentRace.lastPlaceBoostActive = false
+	currentRace.lastPlaceBoostStartTime = nil
+	currentRace.slipstreamAssistEnabled = roomData.slipstream == "on"
+	currentRace.slipstreamActive = nil
 	currentRace.playerCount = 1
 	currentRace.drivers = {}
 	currentRace.lastVehicle = nil
