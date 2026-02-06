@@ -82,6 +82,14 @@ let trafficOption = [
 	["OFF", "off"],
 	["ON", "on"]
 ];
+let lastPlaceBoostOption = [
+	["OFF", "off"],
+	["ON", "on"]
+];
+let slipstreamOption = [
+	["OFF", "off"],
+	["ON", "on"]
+];
 let dnfOption = [
 	["OFF", "off"],
 	["25%", "0.25"],
@@ -705,6 +713,14 @@ function eventInteraction() {
 				val = trafficOption;
 			}
 
+			if ($(this).parent().hasClass("lastplaceboost")) {
+				val = lastPlaceBoostOption;
+			}
+
+			if ($(this).parent().hasClass("slipstream")) {
+				val = slipstreamOption;
+			}
+
 			if ($(this).parent().hasClass("dnf")) {
 				val = dnfOption;
 			}
@@ -801,6 +817,14 @@ function eventInteraction() {
 
 			if ($(this).parent().hasClass("traffic")) {
 				val = trafficOption;
+			}
+
+			if ($(this).parent().hasClass("lastplaceboost")) {
+				val = lastPlaceBoostOption;
+			}
+
+			if ($(this).parent().hasClass("slipstream")) {
+				val = slipstreamOption;
 			}
 
 			if ($(this).parent().hasClass("dnf")) {
@@ -1035,6 +1059,8 @@ function eventSearchRace() {
 								let weather = $(".weather .content").attr("value");
 								let time = $(".time .content").attr("value").split(":");
 								let traffic = $(".traffic .content").attr("value");
+								let lastPlaceBoost = $(".lastplaceboost .content").attr("value");
+								let slipstream = $(".slipstream .content").attr("value");
 								let dnf = $(".dnf .content").attr("value");
 								let accessible = $(".accessible .content").attr("value");
 								let mode = $(".racemode .content").attr("value");
@@ -1057,6 +1083,8 @@ function eventSearchRace() {
 										weather: weather,
 										time: time[0],
 										traffic: traffic,
+										lastPlaceBoost: lastPlaceBoost,
+										slipstream: slipstream,
 										dnf: dnf,
 										accessible: accessible,
 										mode: mode,
@@ -1071,6 +1099,8 @@ function eventSearchRace() {
 									weather: weather,
 									time: time[0],
 									traffic: traffic,
+									lastPlaceBoost: lastPlaceBoost,
+									slipstream: slipstream,
 									dnf: dnf,
 									accessible: accessible,
 									mode: mode,
@@ -1117,6 +1147,8 @@ function eventCreateRoom() {
 			let weather = $(".weather .content").attr("value");
 			let time = $(".time .content").attr("value").split(":");
 			let traffic = $(".traffic .content").attr("value");
+			let lastPlaceBoost = $(".lastplaceboost .content").attr("value");
+			let slipstream = $(".slipstream .content").attr("value");
 			let dnf = $(".dnf .content").attr("value");
 			let accessible = $(".accessible .content").attr("value");
 			let mode = $(".racemode .content").attr("value");
@@ -1136,6 +1168,8 @@ function eventCreateRoom() {
 					weather: weather,
 					time: time[0],
 					traffic: traffic,
+					lastPlaceBoost: lastPlaceBoost,
+					slipstream: slipstream,
 					dnf: dnf,
 					accessible: accessible,
 					mode: mode,
@@ -1151,6 +1185,8 @@ function eventCreateRoom() {
 				weather: weather,
 				time: time[0],
 				traffic: traffic,
+				lastPlaceBoost: lastPlaceBoost,
+				slipstream: slipstream,
 				dnf: dnf,
 				accessible: accessible,
 				mode: mode,
@@ -1427,6 +1463,20 @@ function createRoom(data) {
 		}
 	});
 
+	let lastPlaceBoost = "";
+	lastPlaceBoostOption.forEach(function (race_boost) {
+		if (data.lastPlaceBoost == race_boost[1]) {
+			lastPlaceBoost = race_boost[0];
+		}
+	});
+
+	let slipstream = "";
+	slipstreamOption.forEach(function (race_slipstream) {
+		if (data.slipstream == race_slipstream[1]) {
+			slipstream = race_slipstream[0];
+		}
+	});
+
 	let accessible = "";
 	accessibleOption.forEach(function (race_accessible) {
 		if (data.accessible == race_accessible[1]) {
@@ -1458,6 +1508,8 @@ function createRoom(data) {
 			$(".weather .data-room").text(weather);
 			$(".time .data-room").text(data.time + ":00");
 			$(".traffic .data-room").text(traffic);
+			$(".lastplaceboost .data-room").text(lastPlaceBoost);
+			$(".slipstream .data-room").text(slipstream);
 			$(".dnf .data-room").text(dnf);
 			$(".accessible .data-room").text(accessible);
 			$(".mode .data-room").text(mode);
@@ -1511,6 +1563,20 @@ function loadRoom(data, bool, lobby) {
 		}
 	});
 
+	let lastPlaceBoost = "";
+	lastPlaceBoostOption.forEach(function (race_boost) {
+		if (data.lastPlaceBoost == race_boost[1]) {
+			lastPlaceBoost = race_boost[0];
+		}
+	});
+
+	let slipstream = "";
+	slipstreamOption.forEach(function (race_slipstream) {
+		if (data.slipstream == race_slipstream[1]) {
+			slipstream = race_slipstream[0];
+		}
+	});
+
 	let accessible = "";
 	accessibleOption.forEach(function (race_accessible) {
 		if (data.accessible == race_accessible[1]) {
@@ -1544,6 +1610,8 @@ function loadRoom(data, bool, lobby) {
 					$(".weather .data-room").text(weather);
 					$(".time .data-room").text(data.time + ":00");
 					$(".traffic .data-room").text(traffic);
+					$(".lastplaceboost .data-room").text(lastPlaceBoost);
+					$(".slipstream .data-room").text(slipstream);
 					$(".dnf .data-room").text(dnf);
 					$(".accessible .data-room").text(accessible);
 					$(".mode .data-room").text(mode);
@@ -1571,6 +1639,8 @@ function loadRoom(data, bool, lobby) {
 			$(".weather .data-room").text(weather);
 			$(".time .data-room").text(data.time + ":00");
 			$(".traffic .data-room").text(traffic);
+			$(".lastplaceboost .data-room").text(lastPlaceBoost);
+			$(".slipstream .data-room").text(slipstream);
 			$(".dnf .data-room").text(dnf);
 			$(".accessible .data-room").text(accessible);
 			$(".mode .data-room").text(mode);
